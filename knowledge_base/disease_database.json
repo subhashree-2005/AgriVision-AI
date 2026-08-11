@@ -1,0 +1,115 @@
+{
+    "Apple___Apple_scab": {
+        "plant": "Apple",
+        "disease": "Apple Scab",
+        "symptoms": [
+            "Olive green spots",
+            "Yellow leaves",
+            "Leaf curling",
+            "Fruit spots"
+        ],
+        "cause": "Venturia inaequalis fungus",
+        "treatment": [
+            "Apply Captan fungicide",
+            "Remove infected leaves",
+            "Prune infected branches"
+        ],
+        "prevention": [
+            "Maintain orchard hygiene",
+            "Avoid overhead irrigation",
+            "Use resistant varieties"
+        ],
+        "fertilizer": "Balanced NPK",
+        "pesticide": "Captan",
+        "organic": "Neem Oil Spray",
+        "watering": "Moderate",
+        "weather": "Cool and Humid"
+    },
+
+    "Apple___healthy": {
+        "plant": "Apple",
+        "disease": "Healthy",
+        "symptoms": [
+            "Green leaves",
+            "Healthy growth"
+        ],
+        "cause": "No disease detected",
+        "treatment": [
+            "No treatment required"
+        ],
+        "prevention": [
+            "Maintain irrigation",
+            "Balanced fertilizer"
+        ],
+        "fertilizer": "Balanced NPK",
+        "pesticide": "Not Required",
+        "organic": "Vermicompost",
+        "watering": "Normal",
+        "weather": "Suitable"
+    },
+
+    "Potato___Early_blight": {
+        "plant": "Potato",
+        "disease": "Early Blight",
+        "symptoms": [
+            "Brown spots",
+            "Yellow rings",
+            "Dry leaves"
+        ],
+        "cause": "Alternaria solani fungus",
+        "treatment": [
+            "Apply Mancozeb",
+            "Remove infected leaves"
+        ],
+        "prevention": [
+            "Crop rotation",
+            "Field sanitation"
+        ],
+        "fertilizer": "Nitrogen Rich",
+        "pesticide": "Mancozeb",
+        "organic": "Neem Cake",
+        "watering": "Medium",
+        "weather": "Warm and Humid"
+    },
+
+    "Potato___healthy": {
+        "plant": "Potato",
+        "disease": "Healthy",
+        "symptoms": [
+            "Healthy green leaves"
+        ],
+        "cause": "No disease",
+        "treatment": [
+            "None"
+        ],
+        "prevention": [
+            "Maintain soil moisture"
+        ],
+        "fertilizer": "Balanced NPK",
+        "pesticide": "Not Required",
+        "organic": "Farmyard Manure",
+        "watering": "Moderate",
+        "weather": "Suitable"
+    },
+
+    "Soybean___healthy": {
+        "plant": "Soybean",
+        "disease": "Healthy",
+        "symptoms": [
+            "Healthy leaves",
+            "Normal stem"
+        ],
+        "cause": "No disease",
+        "treatment": [
+            "No treatment required"
+        ],
+        "prevention": [
+            "Regular monitoring"
+        ],
+        "fertilizer": "Phosphorus Fertilizer",
+        "pesticide": "None",
+        "organic": "Vermicompost",
+        "watering": "Moderate",
+        "weather": "Suitable"
+    }
+}

@@ -1,0 +1,85 @@
+
+===========================================================
+              PLANT DISEASE DETECTION REPORT
+===========================================================
+
+Date :
+2026-08-02 19:18:08.163794
+
+-----------------------------------------------------------
+
+Image
+early_blight.jpg
+
+Predicted Class
+Soybean___healthy
+
+Plant
+Soybean
+
+Disease
+Healthy
+
+Confidence
+76.38 %
+
+Severity
+Healthy
+
+-----------------------------------------------------------
+
+Symptoms
+
+['Healthy leaves', 'Normal stem']
+
+-----------------------------------------------------------
+
+Cause
+
+No disease
+
+-----------------------------------------------------------
+
+Treatment
+
+['No treatment required']
+
+-----------------------------------------------------------
+
+Prevention
+
+['Regular monitoring']
+
+-----------------------------------------------------------
+
+Recommended Fertilizer
+
+Apply balanced fertilizer with phosphorus.
+
+-----------------------------------------------------------
+
+Recommended Pesticide
+
+No pesticide required.
+
+-----------------------------------------------------------
+
+Organic Control
+
+Use vermicompost.
+
+-----------------------------------------------------------
+
+Water Requirement
+
+Maintain moderate soil moisture.
+
+-----------------------------------------------------------
+
+Weather Recommendation
+
+Suitable weather for healthy growth.
+
+===========================================================
+End of Report
+===========================================================
