@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Result — AgriVision AI</title>
+<style>
+  :root {
+    --soil: #2E2B24; --leaf: #3F6B3A; --leaf-dark: #2C4C28;
+    --wheat: #E8DCC0; --paper: #FBF8F2; --rust: #B5542A; --amber: #C58F1D;
+    --sky: #3A6EA5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--paper); color: var(--soil); }
+  header { background: var(--leaf-dark); color: var(--wheat); padding: 20px; text-align: center; }
+  header a { color: var(--wheat); text-decoration: none; font-size: 0.9rem; }
+  main { max-width: 520px; margin: 0 auto; padding: 24px 18px 60px; }
+  .card { background: white; border: 1px solid var(--wheat); border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+  .images { display: flex; gap: 10px; }
+  .images img { width: 50%; border-radius: 10px; object-fit: cover; }
+  .disease-name { font-size: 1.5rem; font-weight: 700; margin: 4px 0; line-height: 1.3; }
+  .confidence {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-size: 0.9rem; font-weight: 600; color: white;
+  }
+  .confidence.high { background: var(--leaf); }
+  .confidence.low { background: var(--amber); }
+  .uncertain-banner {
+    background: #fdf1dc; border: 1px solid var(--amber); color: #7a5b0d;
+    border-radius: 10px; padding: 14px; margin-bottom: 18px; font-size: 0.92rem; line-height: 1.5;
+  }
+  .weather-banner {
+    background: #eaf1f8; border: 1px solid var(--sky); color: #234a6b;
+    border-radius: 10px; padding: 14px; margin-bottom: 18px; font-size: 0.92rem; line-height: 1.5;
+  }
+  h3 { margin-top: 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--leaf-dark); }
+  .top3-toggle { font-size: 0.85rem; color: var(--leaf-dark); cursor: pointer; margin-top: 10px; display: inline-block; }
+  .top3 { display: none; margin-top: 10px; }
+  .top3.open { display: block; }
+  .top3 div { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85rem; color: #6b6459; }
+  .severity-bar-track { background: var(--wheat); border-radius: 8px; height: 14px; overflow: hidden; margin: 10px 0; }
+  .severity-bar-fill { height: 100%; border-radius: 8px; }
+  .severity-bar-fill.mild { background: #7BAE5A; }
+  .severity-bar-fill.moderate { background: var(--amber); }
+  .severity-bar-fill.severe { background: var(--rust); }
+  .action-list { margin: 0; padding-left: 20px; }
+  .action-list li { margin-bottom: 8px; line-height: 1.5; }
+  .disclaimer { font-size: 0.8rem; color: #6b6459; line-height: 1.5; }
+  .btn-row { display: flex; gap: 10px; margin-top: 4px; }
+  .back-btn, .pdf-btn {
+    flex: 1; display: block; text-align: center; padding: 14px; border-radius: 10px;
+    text-decoration: none; font-weight: 600;
+  }
+  .back-btn { background: var(--leaf); color: white; }
+  .pdf-btn { background: white; color: var(--leaf-dark); border: 2px solid var(--leaf); }
+</style>
+</head>
+<body>
+  <header>
+    <a href="/">← Back to AgriVision AI</a>
+  </header>
+
+  <main>
+    {% if result.uncertain %}
+    <div class="uncertain-banner">
+      ⚠️ <strong>We're not fully sure about this one.</strong> The photo
+      didn't give a clear enough signal. Try again with a single leaf,
+      good daylight, and a plain background — or show this result to
+      an agricultural expert to be sure.
+    </div>
+    {% endif %}
+
+    {% if result.weather_risk %}
+    <div class="weather-banner">
+      🌦️ <strong>Weather risk: {{ result.weather_risk.risk_level }}.</strong>
+      {{ result.weather_risk.note }}
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="images">
+        <img src="{{ result.uploaded_image_url }}" alt="Uploaded leaf photo">
+        {% if result.gradcam_image %}
+        <img src="/{{ result.gradcam_image }}" alt="Highlighted region the AI focused on">
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Diagnosis</h3>
+      <div class="disease-name">{{ result.prediction.display_name }}</div>
+      <span class="confidence {% if result.uncertain %}low{% else %}high{% endif %}">
+        {{ result.prediction.confidence }}% sure
+      </span>
+
+      <div class="top3-toggle" onclick="document.getElementById('top3').classList.toggle('open')">
+        See other possibilities ▾
+      </div>
+      <div class="top3" id="top3">
+        {% for entry in result.prediction.top_k %}
+        <div><span>{{ entry.display_name }}</span><span>{{ entry.confidence }}%</span></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if result.severity and not result.severity.error %}
+    <div class="card">
+      <h3>How Bad Is It?</h3>
+      <p style="margin-bottom:4px;">
+        <strong>{{ result.severity.severity_label }}</strong> —
+        about {{ result.severity.severity_percent }}% of the leaf is affected.
+      </p>
+      <div class="severity-bar-track">
+        <div class="severity-bar-fill
+          {% if result.severity.severity_percent < 15 %}mild
+          {% elif result.severity.severity_percent < 40 %}moderate
+          {% else %}severe{% endif %}"
+          style="width: {{ result.severity.severity_percent }}%;"></div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <h3>What To Do</h3>
+      {% if result.disease_info.note %}
+        <p>{{ result.disease_info.note }}</p>
+      {% else %}
+        <p><strong>What you'll see:</strong></p>
+        <ul class="action-list">
+          {% for s in result.disease_info.symptoms %}<li>{{ s }}</li>{% endfor %}
+        </ul>
+        <p><strong>What to do about it:</strong></p>
+        <ul class="action-list">
+          {% for t in result.disease_info.treatment %}<li>{{ t }}</li>{% endfor %}
+        </ul>
+        <p><strong>How to stop it coming back:</strong></p>
+        <ul class="action-list">
+          {% for p in result.disease_info.prevention %}<li>{{ p }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+
+    <p class="disclaimer">
+      This is AI-based decision support, not a substitute for an
+      agricultural expert. The right-hand photo shows what most
+      influenced the AI's guess — it does not confirm the diagnosis
+      on its own.
+    </p>
+
+    <div class="btn-row">
+      <a class="back-btn" href="/">Check Another Plant</a>
+      {% if result.pdf_url %}
+      <a class="pdf-btn" href="{{ result.pdf_url }}" download>Download PDF Report</a>
+      {% endif %}
+    </div>
+  </main>
+</body>
+</html>

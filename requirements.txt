@@ -1,0 +1,8 @@
+tensorflow>=2.15
+numpy
+opencv-python
+Flask
+requests
+reportlab
+scikit-learn
+matplotlib

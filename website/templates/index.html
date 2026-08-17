@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriVision AI — Crop Health Assistant</title>
+<style>
+  :root {
+    --soil: #2E2B24;
+    --leaf: #3F6B3A;
+    --leaf-dark: #2C4C28;
+    --wheat: #E8DCC0;
+    --paper: #FBF8F2;
+    --rust: #B5542A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--soil);
+  }
+  header {
+    background: var(--leaf-dark);
+    color: var(--wheat);
+    padding: 28px 20px;
+    text-align: center;
+  }
+  header h1 { margin: 0; font-size: 1.9rem; letter-spacing: 0.5px; }
+  header p { margin: 6px 0 0; opacity: 0.85; font-size: 1rem; }
+  main { max-width: 480px; margin: 0 auto; padding: 32px 20px 60px; }
+  .card {
+    background: white;
+    border: 1px solid var(--wheat);
+    border-radius: 14px;
+    padding: 28px 22px;
+    text-align: center;
+  }
+  .btn {
+    display: block; width: 100%; padding: 18px; margin: 12px 0;
+    border-radius: 10px; font-size: 1.1rem; font-weight: 600;
+    border: none; cursor: pointer;
+  }
+  .btn-camera { background: var(--leaf); color: white; }
+  .btn-camera:hover { background: var(--leaf-dark); }
+  .btn-upload { background: var(--paper); color: var(--soil); border: 2px solid var(--leaf); }
+  input[type="file"] { display: none; }
+  .divider { margin: 18px 0; color: #9a9284; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+  .note { margin-top: 22px; font-size: 0.85rem; color: #6b6459; line-height: 1.5; }
+  .error {
+    background: #fbe4dc; color: var(--rust); border: 1px solid var(--rust);
+    border-radius: 8px; padding: 12px; margin-bottom: 18px; font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>🌱 AgriVision AI</h1>
+    <p>Your AI Crop Health Assistant</p>
+  </header>
+  <main>
+    {% if error %}
+      <div class="error">Something went wrong: {{ error }}</div>
+    {% endif %}
+    <div class="card">
+      <form id="camera-form" action="/predict" method="POST" enctype="multipart/form-data">
+        <label class="btn btn-camera" for="camera-input">📷 Take Photo</label>
+        <input id="camera-input" type="file" name="image" accept="image/*" capture="environment">
+        <input type="hidden" name="lat" id="camera-lat">
+        <input type="hidden" name="lon" id="camera-lon">
+      </form>
+      <div class="divider">or</div>
+      <form id="upload-form" action="/predict" method="POST" enctype="multipart/form-data">
+        <label class="btn btn-upload" for="upload-input">📁 Upload Photo</label>
+        <input id="upload-input" type="file" name="image" accept="image/*">
+        <input type="hidden" name="lat" id="upload-lat">
+        <input type="hidden" name="lon" id="upload-lon">
+      </form>
+      <p class="note">
+        Take a clear photo of one leaf, in daylight if possible.
+        This tool gives AI-based guidance — it does not replace advice
+        from an agricultural expert.
+      </p>
+    </div>
+  </main>
+
+  <script>
+    // Ask for location once, up front, so it's usually ready by the
+    // time the user picks/takes a photo. Weather is optional — if
+    // this fails or is denied, the form still submits fine without it.
+    function fillLocation(latId, lonId) {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        document.getElementById(latId).value = pos.coords.latitude;
+        document.getElementById(lonId).value = pos.coords.longitude;
+      }, function () { /* denied or unavailable -- ignore, weather is optional */ });
+    }
+    fillLocation("camera-lat", "camera-lon");
+    fillLocation("upload-lat", "upload-lon");
+
+    document.getElementById("camera-input").addEventListener("change", function () {
+      document.getElementById("camera-form").submit();
+    });
+    document.getElementById("upload-input").addEventListener("change", function () {
+      document.getElementById("upload-form").submit();
+    });
+  </script>
+</body>
+</html>
