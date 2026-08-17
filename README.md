@@ -1,74 +1,157 @@
-# AgriVision-AI — Recovered Files
+# 🌿 AgriVision-AI
 
-These are rebuilt versions of everything we designed together in chat.
-They are NOT pulled from your actual disk (I can't access your PC) —
-place them into your real `D:\AgriVision-AI\` project, in the matching
-folders, alongside your existing `datasets/`, `saved_models/`, and
-`knowledge_base/disease_database.json`.
+**An end-to-end plant disease diagnosis system** — from a single leaf photo to a farmer-ready treatment report, powered by deep learning and explainable AI.
 
-## Where each file goes
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15%2B-orange)
+![Flask](https://img.shields.io/badge/Flask-Web%20App-lightgrey)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+---
+
+## 🔍 What it does
+
+Upload a photo of a crop leaf. AgriVision-AI:
+
+1. **Classifies the disease** using a CNN trained on leaf imagery (38 classes across 14+ crop species)
+2. **Shows *why*** — a Grad-CAM heatmap overlay highlighting exactly which region of the leaf drove the prediction
+3. **Estimates severity** — quantifies how much of the leaf is affected, not just a binary healthy/diseased label
+4. **Cross-checks live weather** against the disease's known risk conditions, to flag whether current conditions favor its spread
+5. **Looks up treatment guidance** — symptoms, cause, chemical + organic treatment, prevention, and fertilizer advice from a built-in knowledge base
+6. **Generates a downloadable PDF report** the farmer can keep or share
+
+All of this is wrapped in a simple Flask web interface — upload a photo, get a full diagnostic report back.
+
+---
+
+## 🧠 Why this is different from a typical "CNN plant disease classifier"
+
+Most plant-disease projects stop at classification accuracy. AgriVision-AI treats classification as step one of a decision-support pipeline:
+
+| Feature | What it adds |
+|---|---|
+| **Grad-CAM explainability** | Builds trust — shows the model isn't guessing from background artifacts |
+| **Severity estimation** | Distinguishes "just started" from "advanced infection," which changes the recommended action |
+| **Weather-risk correlation** | Ties prediction to agronomy — tells the user if conditions favor disease spread *right now* |
+| **Structured knowledge base** | Turns a label into actionable treatment/prevention guidance, not just a name |
+| **PDF report generation** | Produces something a farmer can actually act on or share offline |
+
+---
+
+## 🏗️ Architecture
 
 ```
-D:\AgriVision-AI\
-├── inference\
-│   ├── preprocessing.py
-│   └── predict.py
-├── gradcam\
-│   └── gradcam_fixed.py
-├── severity\
-│   └── severity_estimation.py
-├── weather\
-│   └── weather_risk.py
-├── full_pipeline.py          <- project root
-├── website\
-│   ├── app.py
-│   └── templates\
-│       ├── index.html
-│       └── result.html
-├── reports\
-│   └── pdf_report_generator.py
-└── requirements.txt           <- project root
+                    ┌─────────────────┐
+   Leaf Photo  ───▶ │   CNN Classifier │ ───▶ Predicted Disease + Confidence
+                    └────────┬─────────┘
+                             │
+              ┌──────────────┼──────────────┬───────────────┐
+              ▼              ▼              ▼               ▼
+        ┌──────────┐  ┌────────────┐  ┌───────────┐  ┌──────────────┐
+        │ Grad-CAM │  │  Severity  │  │  Weather   │  │ Knowledge    │
+        │ Heatmap  │  │ Estimation │  │  Risk API  │  │ Base Lookup  │
+        └──────────┘  └────────────┘  └───────────┘  └──────────────┘
+              │              │              │               │
+              └──────────────┴──────────────┴───────────────┘
+                             ▼
+                   ┌───────────────────┐
+                   │  Flask Web App +   │
+                   │  PDF Report Output │
+                   └───────────────────┘
 ```
 
-## Before running anything
+---
 
-1. Confirm `saved_models/cnn.keras` and `saved_models/class_indices.json`
-   are still where they were — these were never deleted since they're
-   gitignored and only ever existed locally.
-2. Open `cnn.keras` and check `model.summary()` — confirm the last
-   Conv2D layer is still named `conv2d_2`. If it's different, update
-   `LAST_CONV_LAYER_NAME` in `gradcam/gradcam_fixed.py`.
-3. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+## 📊 Results
 
-## Recommended order to verify everything still works
+> **TODO — fill this in from your `evaluation/` notebook before sharing this repo.**
+> A results table here (overall accuracy, per-class precision/recall/F1, and a confusion matrix image) is what turns this from "a project" into "a project with evidence." Reviewers and recruiters look here first.
 
-1. `python inference/predict.py sample_images/early_blight.jpg`
-   — confirms the model loads and predicts.
-2. `python gradcam/gradcam_fixed.py sample_images/early_blight.jpg`
-   — confirms Grad-CAM no longer throws "gradient is None".
-3. `python severity/severity_estimation.py sample_images/early_blight.jpg`
-   — confirms severity estimation runs.
-4. `python full_pipeline.py sample_images/early_blight.jpg`
-   — confirms everything ties together into one JSON result.
-5. `cd website && python app.py`
-   — open http://127.0.0.1:5000, upload a photo, confirm the result
-   page renders with the image, Grad-CAM overlay, and disease info.
+| Metric | Value |
+|---|---|
+| Overall test accuracy | `XX.X%` |
+| Macro F1-score | `X.XX` |
+| Number of classes | 38 |
+| Dataset | PlantVillage (or your source) |
+| Train/val/test split | `XX / XX / XX` |
 
-## What's intentionally NOT included here
+Add a confusion matrix image and a few example Grad-CAM outputs here (`![](evaluation/confusion_matrix.png)`), that's often what makes a viewer stop scrolling.
 
-- Your trained `.keras` model files (too large, never went through chat)
-- Your dataset
-- Your existing `knowledge_base/disease_database.json` entries — the
-  pipeline reads whatever is already there; nothing here overwrites it
-- Weather module needs your own free OpenWeatherMap API key
-  (see `weather/weather_risk.py` for setup)
+---
 
-## Recommended immediate next step
+## 🚀 Getting Started
 
-Run step 1–4 above one at a time, in order, and paste me the exact
-output or error for each — that lets me fix the real problem instead
-of guessing, and confirms nothing important is actually missing
-beyond what's rebuilt here.
+### Prerequisites
+```bash
+git clone https://github.com/subhashree-2005/AgriVision-AI.git
+cd AgriVision-AI
+pip install -r requirements.txt
+```
+
+### Run inference on a single image
+```bash
+python full_pipeline.py path/to/leaf_photo.jpg
+```
+
+### Run the web app
+```bash
+cd website
+python app.py
+```
+Then open `http://127.0.0.1:5000` in your browser.
+
+> **Note:** Trained model weights (`saved_models/cnn.keras`) and the training dataset are not included in this repo (too large for git). See [Model & Dataset](#-model--dataset) below.
+
+---
+
+## 📁 Project Structure
+
+```
+AgriVision-AI/
+├── inference/            # Preprocessing + prediction
+├── gradcam/              # Grad-CAM explainability
+├── severity/             # Lesion severity estimation
+├── weather/               # Weather-based risk assessment
+├── knowledge_base/       # Disease info: symptoms, treatment, prevention
+├── evaluation/            # Accuracy/metrics scripts & results
+├── notebooks/             # Training / experimentation notebooks
+├── reports/               # PDF report generator
+├── website/                # Flask web app (upload → diagnosis)
+├── full_pipeline.py        # Single entry point tying it all together
+└── requirements.txt
+```
+
+---
+
+## 🧰 Tech Stack
+- **Deep Learning:** TensorFlow / Keras (CNN)
+- **Explainability:** Grad-CAM
+- **Computer Vision:** OpenCV
+- **Backend:** Flask
+- **Reporting:** ReportLab (PDF generation)
+- **External Data:** OpenWeatherMap API
+
+---
+
+## 📦 Model & Dataset
+
+This repo ships the pipeline code, not the trained weights or dataset (kept out of git via `.gitignore` due to size). To reproduce:
+1. Train on the [PlantVillage dataset](https://www.kaggle.com/datasets/emmarex/plantdisease) (or your dataset of choice) using `notebooks/`
+2. Place the resulting model at `saved_models/cnn.keras`
+3. Confirm `class_indices.json` matches your training run
+
+---
+
+## 🗺️ Roadmap
+- [ ] Mobile app / camera capture support
+- [ ] Multi-leaf batch diagnosis
+- [ ] Regional disease-outbreak dashboard using aggregated weather-risk data
+- [ ] Model quantization for on-device inference
+
+---
+
+## 📄 License
+MIT — see [LICENSE](LICENSE)
+
+## 🙋 Author
+**Subhashree** — [GitHub](https://github.com/subhashree-2005)
