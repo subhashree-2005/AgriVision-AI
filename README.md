@@ -64,18 +64,25 @@ Most plant-disease projects stop at classification accuracy. AgriVision-AI treat
 
 ## 📊 Results
 
-> **TODO — fill this in from your `evaluation/` notebook before sharing this repo.**
-> A results table here (overall accuracy, per-class precision/recall/F1, and a confusion matrix image) is what turns this from "a project" into "a project with evidence." Reviewers and recruiters look here first.
+Evaluated on a held-out test set of **10,861 images** across all 38 classes.
 
 | Metric | Value |
 |---|---|
-| Overall test accuracy | `XX.X%` |
-| Macro F1-score | `X.XX` |
+| **Overall test accuracy** | **96.22%** |
+| Weighted precision | 96.28% |
+| Weighted recall | 96.22% |
+| Weighted F1-score | 96.20% |
+| Macro F1-score | 95% |
 | Number of classes | 38 |
-| Dataset | PlantVillage (or your source) |
-| Train/val/test split | `XX / XX / XX` |
+| Dataset | PlantVillage |
 
-Add a confusion matrix image and a few example Grad-CAM outputs here (`![](evaluation/confusion_matrix.png)`), that's often what makes a viewer stop scrolling.
+**33 of 38 classes score above 0.90 F1.** The model performs best on visually distinct diseases (Tomato Yellow Leaf Curl Virus, Citrus Greening, Tomato healthy — all ≥0.99 F1) and is weakest on classes that are visually similar to one another or have limited support, e.g. **Corn Cercospora leaf spot** (0.79 F1 — confusable with Northern Leaf Blight) and **Potato healthy** (0.80 F1, only 31 test samples).
+
+![Confusion Matrix](evaluation/confusion_matrix.png)
+
+*Row-normalized confusion matrix — the near-perfect diagonal shows the model rarely confuses unrelated disease classes; the few visible off-diagonal cells are between diseases that are genuinely difficult to distinguish visually, even for humans.*
+
+Full per-class precision/recall/F1 breakdown: [`evaluation/classification_report.txt`](evaluation/classification_report.txt)
 
 ---
 
