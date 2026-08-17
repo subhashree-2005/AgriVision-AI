@@ -10,3 +10,7 @@ venv/
 *.h5
 *.pt
 *.pkl
+website/static/uploads/
+website/static/reports/
+reports/output/
+knowledge_base/disease_database.backup.json
