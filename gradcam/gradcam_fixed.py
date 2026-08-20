@@ -12,6 +12,17 @@ GradientTape can't trace a path from the input to that layer.
 Fix: rebuild an equivalent Functional-API model by manually piping
 each layer's output into the next, then attach Grad-CAM to THAT model.
 
+SECOND FIX (overlay blending): the original overlay_heatmap() blended
+the JET-colormapped heatmap onto the image at a FLAT 40% opacity
+everywhere. Since COLORMAP_JET renders zero/low activation as dark
+blue (not transparent), this painted a uniform blue tint across the
+WHOLE image -- including regions the model didn't consider important
+-- instead of only highlighting the actual high-activation lesion
+area. The fix below scales the blend weight by the heatmap's own
+per-pixel intensity, so low-activation regions stay close to the
+original leaf image and only genuinely important regions get a
+strong color overlay.
+
 Usage:
     python gradcam/gradcam_fixed.py path/to/photo.jpg
 """
@@ -88,13 +99,33 @@ def make_gradcam_heatmap(img_array, functional_model, layer_outputs,
     return heatmap.numpy(), int(pred_index)
 
 
-def overlay_heatmap(pil_img, heatmap, alpha=0.4):
-    img = np.array(pil_img)
+def overlay_heatmap(pil_img, heatmap, alpha=0.5):
+    """
+    Overlays a JET-colormapped heatmap onto the original image.
+
+    FIXED: blend weight is now scaled by the heatmap's own per-pixel
+    intensity (0-1), instead of being a flat alpha applied everywhere.
+    This stops low/zero-activation regions from being tinted by
+    COLORMAP_JET's dark-blue "zero" color, so only genuinely important
+    (high-activation) regions get a strong, visible color overlay.
+    """
+    img = np.array(pil_img).astype(np.float32)
+
+    # Resize heatmap to match the image, keep it in 0-1 float range
     heatmap_resized = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
+    heatmap_resized = np.clip(heatmap_resized, 0, 1)
+
+    # Colorize using JET (still BGR from OpenCV, convert to RGB to match img)
     heatmap_uint8 = np.uint8(255 * heatmap_resized)
     heatmap_color = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
-    heatmap_color = cv2.cvtColor(heatmap_color, cv2.COLOR_BGR2RGB)
-    overlaid = np.uint8(heatmap_color * alpha + img * (1 - alpha))
+    heatmap_color = cv2.cvtColor(heatmap_color, cv2.COLOR_BGR2RGB).astype(np.float32)
+
+    # Per-pixel blend weight: near-zero where heatmap is near-zero,
+    # up to `alpha` where heatmap is at its max (1.0)
+    weight = heatmap_resized[..., np.newaxis] * alpha
+
+    overlaid = heatmap_color * weight + img * (1 - weight)
+    overlaid = np.clip(overlaid, 0, 255).astype(np.uint8)
     return overlaid
 
 
